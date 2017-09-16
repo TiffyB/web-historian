@@ -1,5 +1,6 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
+isUrlArchived = archive.isUrlArchived;
 var paths = archive.paths;
 var url = require('url');
 var fs = require('fs');
@@ -15,38 +16,51 @@ exports.handleRequest = function (req, res) {
   var responseBody;
   var asset;
 
-
   var writeToBody = (data) => {
     responseBody = data;
   };
 
-
-
-
   var actions = {
     'GET': () => {
-      
-      console.log(req.url);
       if (req.url === '/') {
-        asset = './web/public/index.html';
+        asset = paths.siteAssets + '/index.html';
         serveAssets(res, asset, writeToBody);
-      } else if (req.url.includes(".css") || req.url.includes(".ico")) {
-        asset = './web/public' + req.url;
+      } else if (req.url.includes('.css') || req.url.includes('.ico')) {
+        asset = paths.siteAssets + req.url;
+        serveAssets(res, asset, writeToBody);
+      } else if (req.url.includes('www.')) {
+        asset = paths.archivedSites + req.url;
         serveAssets(res, asset, writeToBody);
       } else {
-        asset = './archives/sites' + req.url + "/google/";
-        console.log('asset: ', asset);
-        serveAssets(res, asset, writeToBody);
+        res.statusCode = 404;
+        res.end();
       }
     },
+
     'POST': () => {
       var asset = '';
+      //get the asset
       req.on('data', function(chunk) {
         asset += chunk;
       });
       req.on('end', function() {
         asset = JSON.stringify(asset).slice(5, -1);
         console.log(asset);
+      });
+      //stumble through callback hell to write to txt
+      var serveLoading = serveAssets(res, paths.siteAssets + '/loading.html', writeToBody);
+      archive.isUrlInList(asset, (exists) => {
+        if (exists) {
+          archive.isUrlArchived(asset, function(exists) {
+            if (exists) {
+              serveAssets(res, asset, writeToBody);
+            } else {
+              serveLoading();
+            }
+          });
+        } else {
+          archive.addUrlToList(asset, serveLoading);
+        }
       });
     }
   };

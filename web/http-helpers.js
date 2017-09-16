@@ -11,11 +11,14 @@ exports.headers = {
 };
 
 exports.serveAssets = function(res, asset, callback) {
+  
   //callback comed from requesthandler file
   fs.readFile(asset, function (error, data) {
     // console.log('asset: ', asset)
     // console.log('serve Assets', error)
     // console.log(data.toString('utf8'));
+    console.log('error', error);
+    console.log(res.statusCode);
     res.end(data);
   });
  

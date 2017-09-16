@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-
+var http = require('http');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -22,23 +22,12 @@ exports.initialize = function(pathsObj) {
   });
 };
 
-// The following function names are provided to you to suggest how you might
-// modularize your code. Keep it clean!
-
-//after parsing req URL we get the path that user is looking for 
-// take req path, and use it for callbacks
-
 exports.readListOfUrls = function(callback) {
 
   fs.readFile(exports.paths.list, function(error, data) {
     var urls = data.toString('utf8').split('\n');
     callback(urls);
   });
-  //navigate to sites.txt
-  //provide this path to readFile
-  
-  //split string with "\n" and assign to variable
-  //return resulting array;
 };
 
 exports.isUrlInList = function(url, callback) {
@@ -47,7 +36,7 @@ exports.isUrlInList = function(url, callback) {
     urls.forEach(function(storedUrl) {
       if (storedUrl === url) {
         // console.log(callback(true));
-        exists = true;
+        exists = true; 
       }
     });
     // return false;
@@ -57,16 +46,38 @@ exports.isUrlInList = function(url, callback) {
 
 exports.addUrlToList = function(url, callback) {
   fs.appendFile(exports.paths.list, url, function(data) {
-    callback(data);
+    callback();
   });
 
 };
 
 exports.isUrlArchived = function(url, callback) {
-  callback(exports.paths.archivedSites+'/'+url); 
-  
-
+  fs.stat(exports.paths.archivedSites + '/' + url, function(err, stats) {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        callback(false);
+      }
+    }
+    callback(true);
+  });
 };
 
 exports.downloadUrls = function(urls) {
+  urls.forEach(function(url) {
+    var fixturePath = exports.paths.archivedSites + '/' + url;
+    var siteData = fs.createWriteStream(fixturePath);
+    http.get('http://' + url, function(res) {
+      res.pipe(siteData);
+      siteData.on('finish', function() {
+        siteData.close(function(err) {
+          console.log(err);
+        });
+      });
+    });
+  });
 };
+
+
+
+
+

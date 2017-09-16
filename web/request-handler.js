@@ -13,22 +13,41 @@ exports.handleRequest = function (req, res) {
   console.log('serving request type: ', req.method, 'for url', req.url);  
   // console.log();
   var responseBody;
-  
+  var asset;
+
+
   var writeToBody = (data) => {
     responseBody = data;
   };
-  
+
+
+
 
   var actions = {
-    'GET': () =>{
-      var asset;
+    'GET': () => {
+      
+      console.log(req.url);
       if (req.url === '/') {
         asset = './web/public/index.html';
         serveAssets(res, asset, writeToBody);
-      } else {
+      } else if (req.url.includes(".css") || req.url.includes(".ico")) {
         asset = './web/public' + req.url;
         serveAssets(res, asset, writeToBody);
+      } else {
+        asset = './archives/sites' + req.url + "/google/";
+        console.log('asset: ', asset);
+        serveAssets(res, asset, writeToBody);
       }
+    },
+    'POST': () => {
+      var asset = '';
+      req.on('data', function(chunk) {
+        asset += chunk;
+      });
+      req.on('end', function() {
+        asset = JSON.stringify(asset).slice(5, -1);
+        console.log(asset);
+      });
     }
   };
 
@@ -50,7 +69,7 @@ exports.handleRequest = function (req, res) {
   // });
   var action = actions[req.method];
   action();
-  console.log('responsebody', JSON.stringify(responseBody));
+  // console.log('responsebody', JSON.stringify(responseBody));
   // res.end(JSON.stringify(responseBody));
   // response = JSON.stringify(res);
 

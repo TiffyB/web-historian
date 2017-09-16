@@ -29,14 +29,35 @@ exports.initialize = function(pathsObj) {
 // take req path, and use it for callbacks
 
 exports.readListOfUrls = function(callback) {
-  //fsreadfile sites
-    //callback(this,callback)
+
+  fs.readFile('./archives/sites.txt', function(error, data) {
+    var urls = data.toString('utf8').split('\n');
+    callback(urls);
+  });
+  //navigate to sites.txt
+  //provide this path to readFile
+  
+  //split string with "\n" and assign to variable
+  //return resulting array;
 };
 
 exports.isUrlInList = function(url, callback) {
+  exports.readListOfUrls(function(urls) {
+    var exists = false;
+    urls.forEach(function(storedUrl) {
+      if (storedUrl === url) {
+        // console.log(callback(true));
+        exists = true;
+      }
+    });
+    // return false;
+    callback(exists);
+  });
 };
 
 exports.addUrlToList = function(url, callback) {
+
+
 };
 
 exports.isUrlArchived = function(url, callback) {

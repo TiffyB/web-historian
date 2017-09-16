@@ -15,6 +15,7 @@ exports.serveAssets = function(res, asset, callback) {
   fs.readFile(asset, function (error, data) {
     // console.log('asset: ', asset)
     // console.log('serve Assets', error)
+    // console.log(data.toString('utf8'));
     res.end(data);
   });
  

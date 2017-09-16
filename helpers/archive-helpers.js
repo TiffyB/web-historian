@@ -30,7 +30,7 @@ exports.initialize = function(pathsObj) {
 
 exports.readListOfUrls = function(callback) {
 
-  fs.readFile('./archives/sites.txt', function(error, data) {
+  fs.readFile(exports.paths.list, function(error, data) {
     var urls = data.toString('utf8').split('\n');
     callback(urls);
   });
@@ -56,11 +56,16 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-
+  fs.appendFile(exports.paths.list, url, function(data) {
+    callback(data);
+  });
 
 };
 
 exports.isUrlArchived = function(url, callback) {
+  callback(exports.paths.archivedSites+'/'+url); 
+  
+
 };
 
 exports.downloadUrls = function(urls) {

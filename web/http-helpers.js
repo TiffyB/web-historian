@@ -11,9 +11,18 @@ exports.headers = {
 };
 
 exports.serveAssets = function(res, asset, callback) {
+  //callback comed from requesthandler file
+  fs.readFile(asset, function (error, data) {
+    // console.log('asset: ', asset)
+    // console.log('serve Assets', error)
+    res.end(data);
+  });
+ 
+
   // Write some code here that helps serve up your static files!
   // (Static files are things like html (yours or archived from others...),
   // css, or anything that doesn't change often.)
+
 };
 
 

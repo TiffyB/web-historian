@@ -25,7 +25,12 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
+//after parsing req URL we get the path that user is looking for 
+// take req path, and use it for callbacks
+
 exports.readListOfUrls = function(callback) {
+  //fsreadfile sites
+    //callback(this,callback)
 };
 
 exports.isUrlInList = function(url, callback) {

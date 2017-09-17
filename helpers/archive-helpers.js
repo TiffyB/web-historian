@@ -61,8 +61,6 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urls) {
   urls.forEach(function(url) {
-    
-    console.log('!!!!!!Path!!!!!!!!', exports.paths.archivedSites + '/' + url);
     http.get('http://' + url, function(res) {
       var site = '';
       res.on('data', (chunk)=>{

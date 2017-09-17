@@ -9,7 +9,6 @@ serveAssets = http.serveAssets;
 // require more modules/folders here!
 
 exports.handleRequest = function (req, res) {
-  var reqUrl = url.parse(req.url);  
   var path = req.url.pathname;
   console.log('serving request type: ', req.method, 'for url', req.url);  
   // console.log();
@@ -45,46 +44,28 @@ exports.handleRequest = function (req, res) {
       });
       req.on('end', function() {
         asset = JSON.stringify(asset).slice(5, -1);
-        console.log(asset);
-      });
-      //stumble through callback hell to write to txt
-      var serveLoading = serveAssets(res, paths.siteAssets + '/loading.html', writeToBody);
-      archive.isUrlInList(asset, (exists) => {
-        if (exists) {
-          archive.isUrlArchived(asset, function(exists) {
-            if (exists) {
-              serveAssets(res, asset, writeToBody);
-            } else {
-              serveLoading();
-            }
-          });
-        } else {
-          archive.addUrlToList(asset, serveLoading);
-        }
+        res.statusCode = 302;
+        archive.isUrlInList(asset, (exists) => {
+          if (exists) {
+            //if the url is in the list
+            archive.isUrlArchived(asset, function(exists) {
+              if (exists) {
+                //if the URL has a directory
+                serveAssets(res, paths.siteAssets + '/' + req.url, writeToBody);
+              } else {
+                //if the URL does not yet have a directory
+                serveAssets(res, paths.siteAssets + '/loading.html', writeToBody);
+              }
+            });
+          } else {
+            //if the url is not in the list
+            archive.addUrlToList(asset, ()=> { serveAssets(res, paths.siteAssets + '/loading.html', writeToBody); });
+          }
+        });
       });
     }
   };
 
-  
-    //generate skeleton response
-    //change variable to serber index files
-
-  //else
-    //check if endpoint is in sites.txt
-      //if endpoint value is true
-        //generate skeleton response
-        //
-      //else
-        //add to sites.txt with false value
-        //respond to client saying call back later
-
-  // req.on("data", ()=>{
-    
-  // });
   var action = actions[req.method];
   action();
-  // console.log('responsebody', JSON.stringify(responseBody));
-  // res.end(JSON.stringify(responseBody));
-  // response = JSON.stringify(res);
-
 };

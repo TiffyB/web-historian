@@ -35,20 +35,17 @@ exports.isUrlInList = function(url, callback) {
     var exists = false;
     urls.forEach(function(storedUrl) {
       if (storedUrl === url) {
-        // console.log(callback(true));
         exists = true; 
       }
     });
-    // return false;
     callback(exists);
   });
 };
 
 exports.addUrlToList = function(url, callback) {
-  fs.appendFile(exports.paths.list, url, function(data) {
+  fs.appendFile(exports.paths.list, url + '\n', function(data) {
     callback();
   });
-
 };
 
 exports.isUrlArchived = function(url, callback) {
@@ -64,18 +61,24 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urls) {
   urls.forEach(function(url) {
-    var fixturePath = exports.paths.archivedSites + '/' + url;
-    var siteData = fs.createWriteStream(fixturePath);
+    
+    console.log('!!!!!!Path!!!!!!!!', exports.paths.archivedSites + '/' + url);
     http.get('http://' + url, function(res) {
-      res.pipe(siteData);
-      siteData.on('finish', function() {
-        siteData.close(function(err) {
-          console.log(err);
+      var site = '';
+      res.on('data', (chunk)=>{
+        site += chunk;
+      });
+      res.on('end', () => {
+        fs.open(exports.paths.archivedSites + '/' + url, 'w', function(err,fd) {
+          fs.write(fd, site, (err) => {
+            if (err) { throw err; }
+          });
         });
       });
     });
   });
 };
+
 
 
 

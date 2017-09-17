@@ -17,8 +17,8 @@ exports.serveAssets = function(res, asset, callback) {
     // console.log('asset: ', asset)
     // console.log('serve Assets', error)
     // console.log(data.toString('utf8'));
-    console.log('error', error);
-    console.log(res.statusCode);
+    // console.log('error', error);
+    // console.log(res.statusCode);
     res.end(data);
   });
  
